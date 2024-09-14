@@ -12,90 +12,66 @@ const createAirbnbReviewAPIRoute = (
 
 export async function getOccupancyForNext5Months(req, res) {
     const { room_id } = req.params;
-    if(!room_id) {
-        res.status(ERROR_STATUS.NOT_FOUND);
-        throw new Error("Room id was not provided");
-    }
-
     let id = btoa(room_id);
-    let limit = 50, offset = 0;
+    let limit = 30, offset = 0;
 
-    let check = false;
     let curDate = new Date();
     let lastReview, arraySize = 0;
 
     const noOfReviewsEveryMonth = Array.from({ length: 12 }, () => 0);
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-    do {
-        const apiRoute = createAirbnbReviewAPIRoute("U3RheUxpc3Rpbmc6" + id, limit, offset);
-
-        try {
+    try {
+        do {
+            const apiRoute = createAirbnbReviewAPIRoute("U3RheUxpc3Rpbmc6" + id, limit, offset);
+            console.log("Fetching data from API:", apiRoute);
+            
             const result = await fetch(apiRoute, {
                 method: "GET",
                 headers: {
                     "X-Airbnb-Api-Key": API_KEY,
                 },
             });
-            if(!result) {
-                res.staus(ERROR_STATUS.SERVER_ERROR)
-                throw new Error("something went wrong while fetching data for calculating occupancy");
+            
+            if (!result.ok) {
+                throw new Error(`API request failed with status ${result.status}`);
             }
-
-
+            
             const finalResult = await result.json();
-            if(!finalResult) {
-                res.status(ERROR_STATUS.VALIDATION_ERROR)
-                throw new Error("something went wrong while converting data into json for occupancy");
+            console.log(finalResult)
+            const arrayOfReviews = finalResult?.data?.presentation?.stayProductDetailPage?.reviews?.reviews;
+            
+            if (!arrayOfReviews) {
+                throw new Error("No reviews found in the response");
             }
 
-            const arrayOfReviews = finalResult?.data?.presentation?.stayProductDetailPage?.reviews?.reviews;
-
-            check = false;
-            arraySize = arrayOfReviews.length;
-            lastReview = new Date(arrayOfReviews[arraySize - 1].createdAt);
-    
-            if(lastReview.getMonth() === curDate.getMonth() && lastReview.getFullYear() !== curDate.getFullYear()) check = true;
-    
-            arrayOfReviews.forEach((reviews) => {
+            arrayOfReviews.map((reviews) => {
                 const date = new Date(reviews.createdAt);
-    
-                if(check && !(date.getMonth() === curDate.getMonth() && lastReview.getFullYear() !== date.getFullYear())) return;
-                else {
-                    // console.log(months[date.getMonth()]);
-                    ++noOfReviewsEveryMonth[date.getMonth()];
-                }
+                ++noOfReviewsEveryMonth[date.getMonth()];
+                console.log("Processed review date month:", date.getMonth());
             });
 
             offset += limit;
+            arraySize = arrayOfReviews.length;
+            lastReview = new Date(arrayOfReviews[arraySize - 1].createdAt);
+        } while (arraySize === 30 && !(lastReview.getMonth() === curDate.getMonth() && lastReview.getFullYear() !== curDate.getFullYear()));
 
+        // Calculate occupancy for the next 5 months
+        const nextFiveMonths = [];
+        for (let i = 0; i < 5; i++) {
+            let monthIndex = (curDate.getMonth() + i) % 12;
+            nextFiveMonths.push({
+                month: months[monthIndex],
+                occupancy: (noOfReviewsEveryMonth[monthIndex] / 12).toFixed(2),
+            });
         }
-        catch (error) {
-            res.status(ERROR_STATUS.VALIDATION_ERROR)
-            throw new Error("something went wrong while calculating occupancy", error.message)
-        }
 
-    } while (arraySize === 50 && !check);
+        console.log("Occupancy data for next 5 months:", nextFiveMonths);
+        res.json(nextFiveMonths);
 
-    let occupancyForNext5Months = {};
-    const avgReviewsEveryMonth = noOfReviewsEveryMonth.map(value => value / 30);
-
-    const sum = noOfReviewsEveryMonth.reduce((acc, curr) => acc + curr, 0);
-    const avgOccupancy = Math.round(sum / 12);
-
-
-    for (let i = 1; i < 6; i++) {
-        let nextMonthIndex = (curDate.getMonth() + i) % 12;
-
-        if(noOfReviewsEveryMonth[nextMonthIndex]) 
-            occupancyForNext5Months[months[nextMonthIndex]] = avgReviewsEveryMonth[nextMonthIndex] >= 1 ? "100%" : 
-                Number((avgReviewsEveryMonth[nextMonthIndex] * 100).toFixed(2)) + "%";
-
-        else 
-        occupancyForNext5Months[months[nextMonthIndex]] = Number(avgOccupancy.toFixed(2)) + "%";
+    } catch (error) {
+        console.error("Error calculating occupancy:", error.message);
+        res.status(500).json({ error: "something went wrong while calculating occupancy" });
     }
-
-    res
-        .status(200)
-        .json(occupancyForNext5Months);
 }
+
