@@ -34,7 +34,7 @@ export async function getOccupancyForNext5Months(req, res) {
             });
             
             if (!result.ok) {
-                throw new Error(`API request failed with status ${result.status}`);
+                throw new Error(`API request failed with status ${result.status} and message ${result.message}`);
             }
             
             const finalResult = await result.json();
