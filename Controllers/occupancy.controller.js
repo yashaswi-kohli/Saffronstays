@@ -34,6 +34,7 @@ export async function getOccupancyForNext5Months(req, res) {
             });
             
             if (!result.ok) {
+                console.log(result);
                 throw new Error(`API request failed with status ${result.status} and message ${result.message}`);
             }
             
