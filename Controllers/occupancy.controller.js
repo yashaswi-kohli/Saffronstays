@@ -29,9 +29,28 @@ export async function getOccupancyForNext5Months(req, res) {
             const result = await fetch(apiRoute, {
                 method: "GET",
                 headers: {
+                    "Content-Type": "application/json",
                     "X-Airbnb-Api-Key": API_KEY,
-                    "Refer": `https://www.airbnb.co.in/rooms/${room_id}/reviews?source_impression_id=p3_1726225129_P3XwRp7ZARTg48F2`
-                },
+                    "Referer": `https://www.airbnb.co.in/rooms/${room_id}/reviews?source_impression_id=p3_1726225129_P3XwRp7ZARTg48F2`,
+                    "Device-Memory": "8",
+                    "DNT": "1",
+                    "DPR": "1",
+                    "ECT": "4g",
+                    "Sec-CH-UA": `"Not;A=Brand";v="24", "Chromium";v="128"`,
+                    "Sec-CH-UA-Mobile": "?0",
+                    "Sec-CH-UA-Platform": `"macOS"`,
+                    "Sec-CH-UA-Platform-Version": `"14.5.0"`,
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+                    "Viewport-Width": "1420",
+                    "X-Airbnb-GraphQL-Platform": "web",
+                    "X-Airbnb-GraphQL-Platform-Client": "minimalist-niobe",
+                    "X-Airbnb-Supports-Airlock-V2": "true",
+                    "X-Client-Request-Id": "0rgl7xf13zu91j0x620oq1hg0awk",
+                    "X-Client-Version": "711f014e5082aad7a08357f79d501e15810c8363",
+                    "X-CSRF-Token": "",
+                    "X-CSRF-Without-Token": "1",
+                    "X-Niobe-Short-Circuited": "true"
+                  }
             });
             
             if (!result.ok) {
