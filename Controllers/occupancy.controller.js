@@ -35,7 +35,15 @@ export async function getOccupancyForNext5Months(req, res) {
             });
             
             if (!result.ok) {
-                console.log(result);
+                const { status, statusText, headers, url } = result;
+                const { server, 'content-type': contentType, 'x-reference-error': referenceError } = headers;
+                
+                console.log(`Status: ${status}`);
+                console.log(`Status Text: ${statusText}`);
+                console.log(`Server: ${server}`);
+                console.log(`Content Type: ${contentType}`);
+                console.log(`Reference Error: ${referenceError}`);
+                console.log(`URL: ${url}`);
                 throw new Error(`API request failed with status ${result.status} and message ${result.message}`);
             }
             
