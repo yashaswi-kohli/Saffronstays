@@ -3,8 +3,10 @@ import { PORT } from "./constant.js";
 
 import { getPriceForNext30Days } from "./Controllers/price.controller.js";
 import { getOccupancyForNext5Months } from "./Controllers/occupancy.controller.js";
+import { errorHandler } from "./utils/errorHandler.js";
 
 const app = express();
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
     res.json({
