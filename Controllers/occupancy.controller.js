@@ -72,7 +72,7 @@ export async function getOccupancyForNext5Months(req, res) {
         }
         catch (error) {
             res.status(ERROR_STATUS.VALIDATION_ERROR)
-            throw new Error("something went wrong while calculating occupancy", error)
+            throw new Error("something went wrong while calculating occupancy", error.message)
         }
 
     } while (arraySize === 50 && !check);
