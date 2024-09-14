@@ -25,12 +25,14 @@ export async function getOccupancyForNext5Months(req, res) {
 
     do {
         const apiRoute = createAirbnbReviewAPIRoute("U3RheUxpc3Rpbmc6" + id, limit, offset);
+        console.log("before fetch");
         const result = await fetch(apiRoute, {
             method: "GET",
             headers: {
                 "X-Airbnb-Api-Key": API_KEY,
             },
         });
+        console.log("after fetch");
 
         const finalResult = await result.json();
         const arrayOfReviews = finalResult.data.presentation.stayProductDetailPage.reviews.reviews;
