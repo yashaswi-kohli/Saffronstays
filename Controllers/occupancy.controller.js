@@ -30,6 +30,7 @@ export async function getOccupancyForNext5Months(req, res) {
                 method: "GET",
                 headers: {
                     "X-Airbnb-Api-Key": API_KEY,
+                    "Refer": `https://www.airbnb.co.in/rooms/${room_id}/reviews?source_impression_id=p3_1726225129_P3XwRp7ZARTg48F2`
                 },
             });
             
