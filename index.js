@@ -5,8 +5,14 @@ import { getOccupancyForNext5Months } from "./controllers/occupancy.controller.j
 
 const app = express();
 
-app.get("/airbnb/rate/:room_id", getPriceForNext30Days);
-app.get("/airbnb/occupancy/:room_id", getOccupancyForNext5Months)
+app.get("/", (req, res) => {
+    res.json({
+        "rate endpoint": "/rate/:room_id",
+        "occupancy endpoint": "/occupancy/:room_id",
+    })
+})
+app.get("/rate/:room_id", getPriceForNext30Days);
+app.get("/occupancy/:room_id", getOccupancyForNext5Months)
 
 app.listen(PORT, () => {
     console.log("Running on port: ", PORT)
